@@ -17,7 +17,6 @@ class WebcamVideoStream():
         cam_id: int
             id of the camera to stream from
         """
-        self.ctr = 0
         self.stream = self._acquire_camera(cam_id)
         (self.grabbed, self.frame) = self.stream.read()
         self.stop = False
@@ -75,4 +74,3 @@ class WebcamVideoStream():
         Release the lock from the camera
         """
         self.stream.release()
-        cv2.destroyAllWindows()
