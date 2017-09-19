@@ -17,6 +17,7 @@ class WebcamVideoStream():
         cam_id: int
             id of the camera to stream from
         """
+        self.ctr = 0
         self.stream = self._acquire_camera(cam_id)
         (self.grabbed, self.frame) = self.stream.read()
         self.stop = False
@@ -39,11 +40,13 @@ class WebcamVideoStream():
             print("Error obtaining lock on the camera with cam_id {}: {}".
                   format(cam_id, ex))
 
-    def start(self):
+    def start(self, scale=1):
         """
         Start thread to read the frames from the stream
         """
-        Thread(target=self.update, args=()).start()
+        cam_thread = Thread(target=self.update, args=())
+        cam_thread.daemon = True
+        cam_thread.start()
         return self
 
     def update(self):
@@ -53,17 +56,13 @@ class WebcamVideoStream():
         while True:
             if self.stop:
                 return
-        (self.grabbed, self.frame) = self.stream.read()
+            (self.grabbed, self.frame) = self.stream.read()
 
-    def read(self, scale=1):
+    def read(self):
         """
         Return the fram read from the camera
-        scale: float
-           resize the image by scaling factor.
-           default: 1 (original size)
         """
-        return cv2.resize(self.frame, None, fx=scale, fy=scale,
-                          interpolation=cv2.INTER_AREA)
+        return self.frame
 
     def stop_stream(self):
         """
